@@ -61,8 +61,15 @@ a heartbeat line with the time, so you can see it is still working.
 Get **harddrive-cleanup-vX.Y.Z.zip** from the
 [latest release](https://github.com/RichardZak70/harddrive-cleanup/releases/latest)
 and extract it anywhere. Each release includes a SHA-256 checksum file and a
-signed record of how it was built. To confirm the ZIP came from this
-repository's own release workflow, run:
+signed record of how it was built. To check the download on Windows, compare
+this command's output with the `.sha256` file:
+
+```powershell
+(Get-FileHash .\harddrive-cleanup-vX.Y.Z.zip -Algorithm SHA256).Hash.ToLower()
+```
+
+To confirm the ZIP was built by this repository's own release workflow, use the
+[GitHub CLI](https://cli.github.com/):
 
 ```powershell
 gh attestation verify harddrive-cleanup-vX.Y.Z.zip --repo RichardZak70/harddrive-cleanup
