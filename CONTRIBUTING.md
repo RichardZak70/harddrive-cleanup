@@ -151,8 +151,10 @@ dry run deletes nothing. A pull request can't be merged until the check passes.
 If you're a first-time contributor, a maintainer has to approve the check
 before it runs.
 
-The `main` branch is protected. Every change reaches it through a pull request
-with a passing check and an approving review. Nobody can force-push to it or
+The `main` branch is protected. Contributions reach it only through a pull
+request with a passing check, an approving review from the maintainer, and every
+review conversation resolved. Pull requests are squash-merged, so `main` keeps a
+straight, one-commit-per-change history. Nobody can force-push to `main` or
 delete it.
 
 ## Licensing of contributions
