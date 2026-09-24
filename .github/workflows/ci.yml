@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: PSScriptAnalyzer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Analyze (SARIF for code scanning)
+        uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f # v1.1
+        with:
+          path: .\
+          recurse: true
+          settings: ./PSScriptAnalyzerSettings.psd1
+          output: psscriptanalyzer.sarif
+
+      - name: Upload to code scanning
+        # A pull request from a fork gets a read-only token and cannot upload.
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: psscriptanalyzer.sarif
+          category: psscriptanalyzer
+
+      - name: Fail on any finding
+        shell: pwsh
+        run: |
+          $findings = @(Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1)
+          foreach ($f in $findings) {
+            $file = Resolve-Path -Relative $f.ScriptPath
+            "::error file=$file,line=$($f.Line),title=$($f.RuleName)::$($f.Message)"
+          }
+          "PSScriptAnalyzer findings: $($findings.Count)"
+          if ($findings.Count -gt 0) { exit 1 }
+
+  test:
+    name: Test (${{ matrix.os }}, ${{ matrix.powershell }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+        powershell: [powershell, pwsh]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run tests
+        shell: cmd
+        run: ${{ matrix.powershell }} -NoProfile -ExecutionPolicy Bypass -File tests\Invoke-Tests.ps1
+
+      - name: Launcher dry run
+        shell: cmd
+        run: cleanup_c_drive_portable.cmd -DryRun -NoElevate -NoWait
+
+  docs:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
+        with:
+          globs: '**/*.md'
+
+  workflows:
+    name: Workflow lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.2.0
+
+  ci-ok:
+    # The one check branch protection requires: green only when every job
+    # above succeeded, so adding a job never means editing the protection.
+    name: CI OK
+    if: always()
+    needs: [analyze, test, docs, workflows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for r in $RESULTS; do
+            if [ "$r" != "success" ]; then exit 1; fi
+          done

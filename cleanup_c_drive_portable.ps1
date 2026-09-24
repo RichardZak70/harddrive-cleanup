@@ -160,14 +160,14 @@ function Join-PathSafe([string]$Base, [string]$Child) {
     return [IO.Path]::Combine($Base, $Child)
 }
 
-function Format-Bytes([long]$Bytes) {
+function Format-ByteSize([long]$Bytes) {
     if ($Bytes -ge 1GB) { return ('{0:N2} GB' -f ($Bytes / 1GB)) }
     if ($Bytes -ge 1MB) { return ('{0:N1} MB' -f ($Bytes / 1MB)) }
     if ($Bytes -ge 1KB) { return ('{0:N0} KB' -f ($Bytes / 1KB)) }
     return ('{0} B' -f $Bytes)
 }
 
-function Get-FreeBytes {
+function Get-FreeSpace {
     try {
         return [long](New-Object IO.DriveInfo($script:SystemDrive)).AvailableFreeSpace
     } catch {
@@ -351,7 +351,7 @@ function Test-OnBattery {
             if ($b.BatteryStatus -eq 1) { return $true }   # 1 = discharging
         }
         return $false
-    } catch { }
+    } catch { Write-Debug $_.Exception.Message }
     try {
         Add-Type -AssemblyName System.Windows.Forms
         $status = [System.Windows.Forms.SystemInformation]::PowerStatus.PowerLineStatus
@@ -388,18 +388,19 @@ function Initialize-Log {
     }
 }
 
-function Write-Log([string]$Text) {
+function Write-RunLog([string]$Text) {
     if (-not $script:LogFile) { return }
     try {
         $line = '{0:yyyy-MM-dd HH:mm:ss}  {1}' -f (Get-Date), $Text
         Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8
     } catch {
         # A log that cannot be written must never stop the cleanup.
+        Write-Debug $_.Exception.Message
     }
 }
 
 function Write-Event([string]$Text) {
-    Write-Log $Text
+    Write-RunLog $Text
     if (-not $script:Interactive) {
         Write-Host ('[{0:HH:mm:ss}] {1}' -f (Get-Date), $Text)
     }
@@ -424,11 +425,11 @@ function Get-ResultText($Task) {
     if ($Task.RanElsewhere) { return $Task.Note }
     $parts = New-Object System.Collections.Generic.List[string]
     if ($Task.Kind -eq 'dism') {
-        $parts.Add(('about {0} freed' -f (Format-Bytes $Task.Freed)))
+        $parts.Add(('about {0} freed' -f (Format-ByteSize $Task.Freed)))
     } elseif ($DryRun) {
-        $parts.Add(('would free {0} ({1:N0} files)' -f (Format-Bytes $Task.Freed), $Task.Files))
+        $parts.Add(('would free {0} ({1:N0} files)' -f (Format-ByteSize $Task.Freed), $Task.Files))
     } else {
-        $parts.Add(('{0} freed ({1:N0} files)' -f (Format-Bytes $Task.Freed), $Task.Files))
+        $parts.Add(('{0} freed ({1:N0} files)' -f (Format-ByteSize $Task.Freed), $Task.Files))
     }
     if ($Task.Kept -gt 0) { $parts.Add(('{0:N0} in use, left alone' -f $Task.Kept)) }
     if ($Task.Note) { $parts.Add($Task.Note) }
@@ -452,12 +453,12 @@ function Get-StatusText($Task) {
 
 function Write-Board {
     $w = 79
-    try { $w = [Console]::WindowWidth - 1 } catch { }
+    try { $w = [Console]::WindowWidth - 1 } catch { Write-Debug $_.Exception.Message }
     if ($w -lt 60) { $w = 60 }
     if ($w -gt 118) { $w = 118 }
     $rule = ' ' + ('-' * ($w - 2))
     $overall = Get-OverallFraction
-    $free = Get-FreeBytes
+    $free = Get-FreeSpace
     $gain = $free - $script:FreeBefore
     if ($gain -lt 0) { $gain = 0 }
     $who = 'your account'
@@ -473,7 +474,7 @@ function Write-Board {
 
     $lines = New-Object System.Collections.Generic.List[object]
     $lines.Add(@((' {0} ({1})    running as: {2}    mode: {3}' -f $title, $script:SystemDrive, $who, $mode), 'White'))
-    $lines.Add(@((' Free space: {0} at start, {1} now (+{2})' -f (Format-Bytes $script:FreeBefore), (Format-Bytes $free), (Format-Bytes $gain)), 'Gray'))
+    $lines.Add(@((' Free space: {0} at start, {1} now (+{2})' -f (Format-ByteSize $script:FreeBefore), (Format-ByteSize $free), (Format-ByteSize $gain)), 'Gray'))
     $lines.Add(@($rule, 'DarkGray'))
     $lines.Add(@((' OVERALL {0} {1,3}%    {2} of {3} tasks finished' -f (Get-BarText $overall 30), [Math]::Floor($overall * 100), $finished, $script:Tasks.Count), 'White'))
     $lines.Add(@($rule, 'DarkGray'))
@@ -495,7 +496,7 @@ function Write-Board {
         # Cannot redraw in place: switch to one heartbeat line at a time
         # rather than stacking a fresh board below the last one forever.
         $script:Interactive = $false
-        Write-Log 'Console cannot redraw in place; switched to heartbeat lines.'
+        Write-RunLog 'Console cannot redraw in place; switched to heartbeat lines.'
         return
     }
     foreach ($l in $lines) {
@@ -505,7 +506,7 @@ function Write-Board {
     }
     try {
         $Host.UI.RawUI.WindowTitle = '{0}% - System drive cleanup - {1}' -f [Math]::Floor($overall * 100), $name
-    } catch { }
+    } catch { Write-Debug $_.Exception.Message }
 }
 
 function Update-Progress {
@@ -536,6 +537,7 @@ function Set-WindowHeight([int]$Need) {
         [Console]::WindowHeight = $h
     } catch {
         # Windows Terminal owns its own window size; the board still works.
+        Write-Debug $_.Exception.Message
     }
 }
 
@@ -580,7 +582,7 @@ function New-Task {
     }
 }
 
-function Get-BrowserCacheRoots([string]$UserData) {
+function Get-BrowserCacheRoot([string]$UserData) {
     $roots = New-Object System.Collections.Generic.List[string]
     if (-not $UserData -or -not (Test-Path -LiteralPath $UserData -PathType Container)) {
         return $roots.ToArray()
@@ -623,10 +625,10 @@ function New-UserTaskList {
         (New-Task -Name ('Your temp files ({0}+ days old)' -f $TempMinAgeDays) `
             -Roots @(Join-PathSafe $local 'Temp') -MinAgeDays $TempMinAgeDays),
         (New-Task -Name 'Microsoft Edge cache' `
-            -Roots (Get-BrowserCacheRoots (Join-PathSafe $local 'Microsoft\Edge\User Data')) `
+            -Roots (Get-BrowserCacheRoot (Join-PathSafe $local 'Microsoft\Edge\User Data')) `
             -BlockNames @('msedge') -BlockLabel 'Microsoft Edge'),
         (New-Task -Name 'Google Chrome cache' `
-            -Roots (Get-BrowserCacheRoots (Join-PathSafe $local 'Google\Chrome\User Data')) `
+            -Roots (Get-BrowserCacheRoot (Join-PathSafe $local 'Google\Chrome\User Data')) `
             -BlockNames @('chrome') -BlockLabel 'Google Chrome'),
         (New-Task -Name 'VS Code caches and logs' `
             -Roots @((Join-PathSafe $code 'Cache'), (Join-PathSafe $code 'CachedData'),
@@ -777,7 +779,7 @@ function Invoke-FileClean($Task) {
                 $total += $e.Length
             }
             if ($script:Clock.ElapsedMilliseconds -ge $script:NextTick) {
-                $Task.Phase = 'scanning: {0:N0} files, {1}' -f $files.Count, (Format-Bytes $total)
+                $Task.Phase = 'scanning: {0:N0} files, {1}' -f $files.Count, (Format-ByteSize $total)
                 $script:Activity = 'scanning ' + (ConvertFrom-LongPath $dir.FullName)
                 Update-Progress
             }
@@ -818,7 +820,7 @@ function Invoke-FileClean($Task) {
                     try {
                         $f.Refresh()
                         if ($f.Exists) { $f.Attributes = ($f.Attributes -bor $readOnly) }
-                    } catch { }
+                    } catch { Write-Debug $_.Exception.Message }
                 }
             }
             if ($deleted) { $freed += $len }
@@ -848,7 +850,7 @@ function Invoke-FileClean($Task) {
                 if ($newest -ge $cutoff) { continue }
             }
             if ($recheck -and (Test-ChainHasLink ([IO.Path]::GetDirectoryName($d.FullName)))) { continue }
-            try { $d.Delete($false) } catch { }
+            try { $d.Delete($false) } catch { Write-Debug $_.Exception.Message }
             if ($script:Clock.ElapsedMilliseconds -ge $script:NextTick) { Update-Progress }
         }
     }
@@ -904,12 +906,12 @@ function Invoke-WuCacheTask($Task) {
             try {
                 $svc.Refresh()
                 if ($svc.Status -ne 'Running') {
-                    try { $svc.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(30)) } catch { }
+                    try { $svc.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(30)) } catch { Write-Debug $_.Exception.Message }
                     $svc.Refresh()
                     if ($svc.Status -eq 'Stopped') { $svc.Start() }
                 }
             } catch {
-                Write-Log 'Could not restart the Windows Update service; Windows starts it again on demand.'
+                Write-RunLog 'Could not restart the Windows Update service; Windows starts it again on demand.'
             }
         }
     }
@@ -947,7 +949,7 @@ function Invoke-DismTask($Task) {
     if (-not $outDir) { $outDir = [IO.Path]::GetTempPath() }
     $out = Join-Path $outDir ('dism-output-{0}.txt' -f $script:Stamp)
     $err = Join-Path $outDir ('dism-errors-{0}.txt' -f $script:Stamp)
-    $before = Get-FreeBytes
+    $before = Get-FreeSpace
 
     $Task.Percent = 0.0
     $Task.Phase = 'starting - takes 5 to 20 minutes, keep the PC on'
@@ -975,7 +977,7 @@ function Invoke-DismTask($Task) {
     }
     $proc.WaitForExit()
     $code = $proc.ExitCode
-    $gain = (Get-FreeBytes) - $before
+    $gain = (Get-FreeSpace) - $before
     if ($gain -lt 0) { $gain = 0 }
     $Task.Freed = [long]$gain
     if ($code -eq 0) {
@@ -1051,7 +1053,7 @@ function Invoke-AdminWindow([object[]]$SystemTasks) {
         foreach ($t in $SystemTasks) { Set-TaskSkipped $t 'administrator rights were not granted' }
         return
     }
-    try { $null = $proc.Handle } catch { }
+    try { $null = $proc.Handle } catch { Write-Debug $_.Exception.Message }
     foreach ($t in $SystemTasks) { $t.Phase = 'running in the administrator window' }
     $script:Activity = 'the administrator window shows this part in detail'
     while (-not $proc.HasExited) {
@@ -1060,7 +1062,7 @@ function Invoke-AdminWindow([object[]]$SystemTasks) {
     }
     $proc.WaitForExit()
     $code = -1
-    try { $code = $proc.ExitCode } catch { }
+    try { $code = $proc.ExitCode } catch { Write-Debug $_.Exception.Message }
 
     if ($code -ge $ChildCodeBase -and $code -lt ($ChildCodeBase + 64)) {
         $value = $code - $ChildCodeBase
@@ -1093,7 +1095,7 @@ function Complete-Run {
     $script:Current = $null
     $script:Activity = 'all tasks finished'
     if ($script:Interactive) { Update-Progress }
-    $after = Get-FreeBytes
+    $after = Get-FreeSpace
     $gain = $after - $script:FreeBefore
     if ($gain -lt 0) { $gain = 0 }
     [long]$sum = 0
@@ -1101,10 +1103,10 @@ function Complete-Run {
     $elapsed = $script:Clock.Elapsed.ToString('hh\:mm\:ss')
     if ($DryRun) {
         $msg = 'Dry run finished in {0}. About {1} could be freed by the tasks in this window. Nothing was deleted.' -f `
-            $elapsed, (Format-Bytes $sum)
+            $elapsed, (Format-ByteSize $sum)
     } else {
         $msg = 'Finished in {0}. Free space on {1}: {2} before, {3} now (+{4}).' -f `
-            $elapsed, $script:SystemDrive, (Format-Bytes $script:FreeBefore), (Format-Bytes $after), (Format-Bytes $gain)
+            $elapsed, $script:SystemDrive, (Format-ByteSize $script:FreeBefore), (Format-ByteSize $after), (Format-ByteSize $gain)
     }
     Write-Host ''
     Write-Host (' ' + $msg) -ForegroundColor Green
@@ -1113,7 +1115,7 @@ function Complete-Run {
         Write-Host ' Some caches were skipped because their program was open. Close it and run again to clear them.' -ForegroundColor Gray
     }
     if ($script:LogFile) { Write-Host (' Log: ' + $script:LogFile) -ForegroundColor Gray }
-    Write-Log $msg
+    Write-RunLog $msg
 }
 
 function Wait-BeforeClose([int]$Seconds) {
@@ -1134,6 +1136,7 @@ function Wait-BeforeClose([int]$Seconds) {
         Write-Host ''
     } catch {
         # No keyboard attached to this window: just close.
+        Write-Debug $_.Exception.Message
     }
 }
 
@@ -1168,21 +1171,21 @@ function Invoke-Main {
     } else {
         $script:Tasks = @(New-UserTaskList) + $systemTasks
     }
-    $script:FreeBefore = Get-FreeBytes
+    $script:FreeBefore = Get-FreeSpace
 
-    Write-Log ('Run started. account={0} administrator={1} systemOnly={2} dryRun={3} windows={4}' -f `
+    Write-RunLog ('Run started. account={0} administrator={1} systemOnly={2} dryRun={3} windows={4}' -f `
         [Environment]::UserName, $script:IsAdmin, [bool]$SystemOnly, [bool]$DryRun, [Environment]::OSVersion.VersionString)
 
     if ($script:Interactive) {
-        try { Clear-Host } catch { }
-        try { [Console]::CursorVisible = $false } catch { }
+        try { Clear-Host } catch { Write-Debug $_.Exception.Message }
+        try { [Console]::CursorVisible = $false } catch { Write-Debug $_.Exception.Message }
         Set-WindowHeight ($script:Tasks.Count + 16)
         try { $script:BoardTop = [Console]::CursorTop } catch { $script:BoardTop = 0 }
     } else {
         $mode = 'cleaning'
         if ($DryRun) { $mode = 'DRY RUN - nothing is deleted' }
         Write-Host ('System drive cleanup ({0}) - administrator: {1} - mode: {2}' -f $script:SystemDrive, $script:IsAdmin, $mode)
-        Write-Host ('Free space at start: {0}' -f (Format-Bytes $script:FreeBefore))
+        Write-Host ('Free space at start: {0}' -f (Format-ByteSize $script:FreeBefore))
     }
     Update-Progress
 
@@ -1212,13 +1215,13 @@ function Invoke-Main {
 try {
     Invoke-Main
 } catch {
-    try { [Console]::CursorVisible = $true } catch { }
+    try { [Console]::CursorVisible = $true } catch { Write-Debug $_.Exception.Message }
     Write-Host ''
     Write-Host (' The cleanup stopped on an unexpected error: ' + $_.Exception.Message) -ForegroundColor Red
-    Write-Log ('Stopped on an unexpected error: ' + $_.Exception.Message)
+    Write-RunLog ('Stopped on an unexpected error: ' + $_.Exception.Message)
     Wait-BeforeClose $CloseAfter
     $script:ExitCode = 3
 } finally {
-    try { [Console]::CursorVisible = $true } catch { }
+    try { [Console]::CursorVisible = $true } catch { Write-Debug $_.Exception.Message }
 }
 exit $script:ExitCode

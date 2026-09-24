@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # The only dependencies are the GitHub Actions the workflows use. Updates
+  # arrive as one grouped pull request a week, which the auto-merge workflow
+  # approves and squash-merges once CI passes.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: 'chore(deps)'

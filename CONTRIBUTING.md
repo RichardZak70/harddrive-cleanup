@@ -112,16 +112,31 @@ In the pull request, say:
 Please do all of these before opening a pull request, and say in the pull
 request that you did.
 
-1. **Check that it parses** in Windows PowerShell 5.1:
+1. **Run the test suite** in both Windows PowerShell 5.1 and PowerShell 7:
 
    ```powershell
-   powershell -NoProfile -Command '$e=$null; [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path .\cleanup_c_drive_portable.ps1).Path, [ref]$null, [ref]$e); $e'
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1
+   pwsh -NoProfile -File .\tests\Invoke-Tests.ps1
    ```
 
-   No output means no errors. The same check runs automatically on every pull
-   request (see [Automatic checks](#automatic-checks)).
+   It is safe anywhere: everything it deletes is test data it creates in a
+   temporary folder. It checks the file format, that the script parses, that
+   the delete engine keeps what it must keep (young files, files in use, links
+   and their targets, folders owned by other users), the path guards, and a dry
+   run end to end. If you add a safety rule, add a test for it here.
 
-2. **Dry run.** This scans and reports but deletes nothing, stops no service and
+2. **Lint** with PSScriptAnalyzer
+   (`Install-Module PSScriptAnalyzer -Scope CurrentUser` once):
+
+   ```powershell
+   Invoke-ScriptAnalyzer -Path . -Recurse -Settings .\PSScriptAnalyzerSettings.psd1
+   ```
+
+   No output means no findings. Fix what it reports rather than adding an
+   exclusion. An exclusion needs a reason written beside it in
+   `PSScriptAnalyzerSettings.psd1`.
+
+3. **Dry run.** This scans and reports but deletes nothing, stops no service and
    does not run DISM:
 
    ```powershell
@@ -132,24 +147,36 @@ request that you did.
    skipped gives a sensible reason. Add `-NoElevate` to test without the UAC
    prompt.
 
-3. **Test with the program running and closed.** If your task skips while its
+4. **Test with the program running and closed.** If your task skips while its
    program runs, check both ways.
 
-4. **Real run, on a machine you can afford to have go wrong** (a virtual
+5. **Real run, on a machine you can afford to have go wrong** (a virtual
    machine is ideal). Run it for real and check that the program whose cache
    you cleared still works afterwards.
 
-5. **Run it in PowerShell 7 as well**, if you have it:
-   `pwsh -File .\cleanup_c_drive_portable.ps1 -DryRun -NoElevate`.
-
 ## Automatic checks
 
-Every pull request runs the **validate** check on a Windows machine at GitHub.
-It checks that the script parses in Windows PowerShell 5.1, that both scripts
-are ASCII with CRLF line endings, and that a dry run finishes cleanly. The
-dry run deletes nothing. A pull request can't be merged until the check passes.
-If you're a first-time contributor, a maintainer has to approve the check
-before it runs.
+Every pull request runs these at GitHub, and a pull request can't be merged
+until **CI OK** is green:
+
+| Check | What it does |
+| --- | --- |
+| **PSScriptAnalyzer** | Lints every PowerShell file; findings also appear under the repository's Security tab |
+| **Test** | Runs `tests/Invoke-Tests.ps1` and a launcher dry run on Windows Server 2022 and 2025, in both Windows PowerShell 5.1 and PowerShell 7 |
+| **Markdown lint** | Checks the documentation's formatting |
+| **Workflow lint** | Checks the GitHub Actions workflows with actionlint |
+| **CI OK** | Passes only when all of the above passed |
+| **CodeQL** | Scans the workflows for security problems |
+| **Dependency review** | Blocks a new dependency with a known vulnerability |
+
+If you're a first-time contributor, a maintainer has to approve the checks
+before they run.
+
+Releases are built by the **Release** workflow when a version tag such as
+`v1.2.0` is pushed. It runs the tests, builds the download ZIP with a SHA-256
+checksum and a signed build-provenance record, and publishes the GitHub
+release. Dependabot keeps the workflows' actions up to date. Its pull requests
+merge themselves once CI passes.
 
 The `main` branch is protected. Contributions reach it only through a pull
 request with a passing check, an approving review from the maintainer, and every

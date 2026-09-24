@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file MD041 -- the body of a pull request, not a document -->
 ## What does this change?
 
 <!-- One or two sentences. Link the issue it fixes, e.g. "Fixes #12". -->

@@ -1,0 +1,8 @@
+{
+  // LICENSE.md and CODE_OF_CONDUCT.md are third-party texts kept verbatim.
+  "ignores": ["LICENSE.md", "CODE_OF_CONDUCT.md"],
+  "config": {
+    // Prose is wrapped by hand; long table rows and URLs are fine.
+    "MD013": false
+  }
+}

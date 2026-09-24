@@ -1,0 +1,64 @@
+name: Release
+
+# Pushing a version tag (for example v1.0.0) runs the tests, builds the
+# download ZIP with a SHA-256 checksum, records signed build provenance, and
+# publishes the GitHub release.
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test (Windows PowerShell 5.1)
+        shell: cmd
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Invoke-Tests.ps1
+
+      - name: Build the ZIP and checksum
+        shell: pwsh
+        run: |
+          $name = "harddrive-cleanup-$env:VERSION"
+          New-Item -ItemType Directory -Path dist, "stage/$name" | Out-Null
+          Copy-Item cleanup_c_drive_portable.cmd, cleanup_c_drive_portable.ps1, README.md, LICENSE.md "stage/$name"
+          Compress-Archive -Path "stage/$name" -DestinationPath "dist/$name.zip"
+          $hash = (Get-FileHash "dist/$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $name.zip" | Set-Content -Encoding ascii "dist/$name.zip.sha256"
+          Get-Content "dist/$name.zip.sha256"
+
+      - name: Record build provenance
+        id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*.zip
+
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          $name = "harddrive-cleanup-$env:VERSION"
+          Copy-Item $env:BUNDLE "dist/$name.zip.sigstore.json"
+          $notes = @"
+          Download **$name.zip**, extract it, and double-click ``cleanup_c_drive_portable.cmd``.
+
+          Verify the download with the checksum file, or with GitHub's signed build record:
+          ``gh attestation verify $name.zip --repo $env:GITHUB_REPOSITORY``
+          "@
+          gh release create $env:VERSION dist/* --verify-tag --title "harddrive-cleanup $env:VERSION" --notes "$notes" --generate-notes

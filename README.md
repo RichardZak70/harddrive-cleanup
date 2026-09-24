@@ -1,5 +1,11 @@
 # harddrive-cleanup
 
+[![CI](https://github.com/RichardZak70/harddrive-cleanup/actions/workflows/ci.yml/badge.svg)](https://github.com/RichardZak70/harddrive-cleanup/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/RichardZak70/harddrive-cleanup/actions/workflows/codeql.yml/badge.svg)](https://github.com/RichardZak70/harddrive-cleanup/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/RichardZak70/harddrive-cleanup/badge)](https://scorecard.dev/viewer/?uri=github.com/RichardZak70/harddrive-cleanup)
+[![Latest release](https://img.shields.io/github/v/release/RichardZak70/harddrive-cleanup)](https://github.com/RichardZak70/harddrive-cleanup/releases/latest)
+[![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE.md)
+
 A safe, unattended Windows disk cleanup for when the C: drive is running out
 of space. Double-click one file, and it clears the program caches and old
 temporary files that pile up on a Windows 10 or 11 PC, then tells you how much
@@ -37,6 +43,18 @@ a heartbeat line with the time, so you can see it is still working.
 ```
 
 (Figures above are illustrative.)
+
+## Download
+
+Get **harddrive-cleanup-vX.Y.Z.zip** from the
+[latest release](https://github.com/RichardZak70/harddrive-cleanup/releases/latest)
+and extract it anywhere. Each release includes a SHA-256 checksum file and a
+signed record of how it was built. To confirm the ZIP came from this
+repository's own release workflow, run:
+
+```powershell
+gh attestation verify harddrive-cleanup-vX.Y.Z.zip --repo RichardZak70/harddrive-cleanup
+```
 
 ## Use
 
