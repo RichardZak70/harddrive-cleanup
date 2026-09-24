@@ -95,6 +95,13 @@ Windows 10 or 11 with Windows PowerShell 5.1 (built in). The pip, npm,
 Gradle and pre-commit caches are re-downloaded on next use, so a PC that is
 offline afterwards cannot install packages until it is back online.
 
+## Contributing
+
+Contributions are welcome: bug reports, fixes, new safe caches to clear, and
+better docs. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to send a change,
+the safety rules every change must keep, and how to test. Security problems go
+through private reporting, as [SECURITY.md](SECURITY.md) describes.
+
 ## License
 
 Free for personal, non-commercial use under the

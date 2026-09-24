@@ -1,0 +1,50 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parses in Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile("$PWD\cleanup_c_drive_portable.ps1", [ref]$null, [ref]$errors)
+          if ($errors) {
+            $errors | ForEach-Object { "::error file=cleanup_c_drive_portable.ps1,line=$($_.Extent.StartLineNumber)::$($_.Message)" }
+            exit 1
+          }
+          'No parse errors.'
+
+      - name: ASCII only, CRLF line endings
+        shell: powershell
+        run: |
+          $bad = $false
+          foreach ($f in 'cleanup_c_drive_portable.cmd', 'cleanup_c_drive_portable.ps1') {
+            $bytes = [IO.File]::ReadAllBytes("$PWD\$f")
+            if (@($bytes | Where-Object { $_ -gt 127 }).Count -gt 0) {
+              "::error file=$f::contains non-ASCII characters"
+              $bad = $true
+            }
+            $text = [Text.Encoding]::ASCII.GetString($bytes)
+            if ([regex]::IsMatch($text, "(?<!`r)`n")) {
+              "::error file=$f::has LF-only line endings; it must be CRLF"
+              $bad = $true
+            }
+          }
+          if ($bad) { exit 1 }
+          'Both scripts are ASCII with CRLF line endings.'
+
+      - name: Dry run (deletes nothing)
+        shell: cmd
+        run: cleanup_c_drive_portable.cmd -DryRun -NoElevate -NoWait

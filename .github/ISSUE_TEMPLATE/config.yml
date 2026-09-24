@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem privately
+    url: https://github.com/RichardZak70/harddrive-cleanup/security/advisories/new
+    about: The program could delete the wrong thing or be misused for administrator rights? Report it here, not in a public issue.
+  - name: How to contribute
+    url: https://github.com/RichardZak70/harddrive-cleanup/blob/main/CONTRIBUTING.md
+    about: The safety rules, code style and testing steps for a pull request.

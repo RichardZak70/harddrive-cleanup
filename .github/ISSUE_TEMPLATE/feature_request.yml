@@ -1,0 +1,37 @@
+name: Feature request or new cache
+description: Suggest an improvement, or a new cache or temp folder to clear.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggesting a new folder to clear? It must be a cache or temp folder that its program re-creates by itself, and never anything a person made or chose. See "The safety rules" in CONTRIBUTING.md.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it useful?
+      description: How much space does it usually free, and for whom?
+  - type: textarea
+    id: folder
+    attributes:
+      label: For a new cache - which folder, and which program creates it?
+      description: Include a link to the program's documentation or source showing the folder is a re-creatable cache, and the program's process name.
+      placeholder: "%LOCALAPPDATA%\\ExampleApp\\Cache - created by ExampleApp (exampleapp.exe); docs: https://..."
+  - type: textarea
+    id: after
+    attributes:
+      label: For a new cache - what happens the next time the program runs?
+      description: For example, "it re-downloads the files on first use" or "it rebuilds the index in a few seconds".
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to send a pull request for this myself.
