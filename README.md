@@ -5,6 +5,18 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/RichardZak70/harddrive-cleanup/badge)](https://scorecard.dev/viewer/?uri=github.com/RichardZak70/harddrive-cleanup)
 [![Latest release](https://img.shields.io/github/v/release/RichardZak70/harddrive-cleanup)](https://github.com/RichardZak70/harddrive-cleanup/releases/latest)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE.md)
+[![AI-generated: Claude Code, Opus 5.5](https://img.shields.io/badge/AI--generated-Claude%20Code%20%C2%B7%20Opus%205.5-8A2BE2)](AI_DISCLOSURE.md)
+
+> [!IMPORTANT]
+> **This program was written by an AI agent.** Its code, tests, workflows and
+> documentation were written agentically by **Claude Code** (Anthropic),
+> running the **Claude Opus 5.5** model, under the direction of
+> [Richard Zakrzewski](https://github.com/RichardZak70), who set the
+> requirements, directed every change and maintains the project. It was checked
+> by separate AI review agents and an automated test suite, but it has **not**
+> been reviewed by an independent human security professional. Read the safety
+> rules and run it with `-DryRun` before relying on it. Details are in
+> [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 
 A safe, unattended Windows disk cleanup for when the C: drive is running out
 of space. Double-click one file, and it clears the program caches and old

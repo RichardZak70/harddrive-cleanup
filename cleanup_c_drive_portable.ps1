@@ -55,6 +55,11 @@
     Internal. Set when the script opens its administrator window: run the
     system tasks only, and report each task's outcome in the exit code.
 #>
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-AI-Disclosure: ai-generated
+# SPDX-AI-Model: claude-opus-5-5
+# SPDX-AI-Provider: Anthropic
+# SPDX-AI-Scope: written by Claude Code under human direction; see AI_DISCLOSURE.md
 [CmdletBinding()]
 param(
     [switch]$DryRun,
