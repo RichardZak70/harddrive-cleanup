@@ -151,10 +151,18 @@ try {
     Assert-True (Test-TrustedOwner (New-Object IO.DirectoryInfo (ConvertTo-LongPath "$script:WinDir\System32"))) 'System32 is owned by Windows'
     Assert-True (-not (Test-OthersCanReplace "$script:WinDir\System32")) 'System32 cannot be changed by ordinary accounts'
 
+    # Make the root owned by this account rather than by Windows or the
+    # Administrators group. An elevated session (a CI runner) creates
+    # folders owned by Administrators, which the gate rightly trusts.
+    $acl = Get-Acl -LiteralPath $root
+    $acl.SetOwner([Security.Principal.WindowsIdentity]::GetCurrent().User)
+    Set-Acl -LiteralPath $root -AclObject $acl
+    [IO.File]::WriteAllText("$root\old\gated.txt", 'GATED')
+    Set-OldTimestamp "$root\old\gated.txt"
     $owned = New-Task -Name 'owned' -Roots @($root) -MinAgeDays 2 -TrustedOwnersOnly $true
     Invoke-FileClean $owned
     Assert-True ($owned.Files -eq 0) 'owner-gated task deletes nothing in a user-owned folder'
-    Assert-True (Test-Path -LiteralPath "$root\old\locked.txt") 'owner-gated task left the folder intact'
+    Assert-True (Test-Path -LiteralPath "$root\old\gated.txt") 'owner-gated task left an old file there alone'
 } finally {
     if ($lock) { $lock.Dispose() }
     # Remove the junction on its own first, so the clean-up can never walk
