@@ -14,7 +14,7 @@ While it runs, a window shows every task with its status (waiting, working
 with a percentage, done, skipped with the reason), an overall percentage, and
 a heartbeat line with the time, so you can see it is still working.
 
-```
+```text
  SYSTEM DRIVE CLEANUP (C:)    running as: your account    mode: cleaning
  Free space: 67.75 GB at start, 71.20 GB now (+3.45 GB)
  -----------------------------------------------------------------------

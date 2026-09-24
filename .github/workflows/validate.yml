@@ -13,7 +13,7 @@ jobs:
     name: validate
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Parses in Windows PowerShell 5.1
         shell: powershell
