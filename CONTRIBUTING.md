@@ -184,6 +184,22 @@ review conversation resolved. Pull requests are squash-merged, so `main` keeps a
 straight, one-commit-per-change history. Nobody can force-push to `main` or
 delete it.
 
+## Using AI tools
+
+This project was itself written by an AI agent (see
+[AI_DISCLOSURE.md](AI_DISCLOSURE.md)), and AI-assisted contributions are
+welcome on the same terms:
+
+- **Say so.** The pull request form asks whether an AI tool wrote or changed
+  any of your contribution, which tool and model, and what it did.
+- **Understand it.** You must be able to explain every line you submit and
+  why it's safe. "The AI wrote it" is not an answer to a review question.
+- **Test it yourself.** Run the tests and a dry run as described above. Don't
+  submit output you haven't run.
+- **Tag new source files** with the same `SPDX-AI-*` comment lines the existing
+  files carry, using `ai-assisted` if a person wrote it with AI help, or
+  `ai-generated` if the AI wrote it and a person directed and reviewed it.
+
 ## Licensing of contributions
 
 This project is licensed under the

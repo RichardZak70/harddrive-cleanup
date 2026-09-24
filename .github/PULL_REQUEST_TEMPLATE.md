@@ -26,6 +26,17 @@ Windows version tested on:
 - [ ] No network access, no prompts beyond the one UAC request
 - [ ] ASCII only, CRLF line endings, works under `Set-StrictMode -Version 2.0`
 
+## AI assistance
+
+- [ ] No AI tool wrote or changed any part of this pull request
+- [ ] An AI tool was used (fill in below)
+
+Tool and model:
+
+What it did:
+
+- [ ] I understand every change here and can explain why it is safe
+
 ## Licensing
 
 - [ ] I wrote this or have the right to submit it, and I agree it is licensed under the project's [PolyForm Noncommercial License 1.0.0](../LICENSE.md)

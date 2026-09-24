@@ -16,6 +16,11 @@
     administrator-window exit code behave. Exits 0 when every test passes,
     1 otherwise.
 #>
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-AI-Disclosure: ai-generated
+# SPDX-AI-Model: claude-opus-5-5
+# SPDX-AI-Provider: Anthropic
+# SPDX-AI-Scope: written by Claude Code under human direction; see AI_DISCLOSURE.md
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification = 'DryRun, NoElevate, NoWait and SystemOnly stand in for the parameters of the script under test, which reads them after it is dot-sourced.')]
 [CmdletBinding()]
