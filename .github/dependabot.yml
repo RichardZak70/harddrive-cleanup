@@ -12,3 +12,4 @@ updates:
         patterns: ['*']
     commit-message:
       prefix: 'chore(deps)'
+    open-pull-requests-limit: 5
