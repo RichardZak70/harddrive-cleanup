@@ -38,7 +38,10 @@ jobs:
           Copy-Item cleanup_c_drive_portable.cmd, cleanup_c_drive_portable.ps1, README.md, LICENSE.md "stage/$name"
           Compress-Archive -Path "stage/$name" -DestinationPath "dist/$name.zip"
           $hash = (Get-FileHash "dist/$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $name.zip" | Set-Content -Encoding ascii "dist/$name.zip.sha256"
+          # A checksum file is one LF-terminated line, as sha256sum -c expects;
+          # Set-Content on Windows would end it with CRLF, which breaks that.
+          [IO.File]::WriteAllText("$PWD/dist/$name.zip.sha256", "$hash  $name.zip`n")
+          if ([IO.File]::ReadAllText("$PWD/dist/$name.zip.sha256").Contains("`r")) { throw 'checksum file has a CR' }
           Get-Content "dist/$name.zip.sha256"
 
       - name: Record build provenance
