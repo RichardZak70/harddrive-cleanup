@@ -94,3 +94,20 @@ The full list of rules is at the top of `cleanup_c_drive_portable.ps1`.
 Windows 10 or 11 with Windows PowerShell 5.1 (built in). The pip, npm,
 Gradle and pre-commit caches are re-downloaded on next use, so a PC that is
 offline afterwards cannot install packages until it is back online.
+
+## License
+
+Free for personal, non-commercial use under the
+[PolyForm Noncommercial License 1.0.0](LICENSE.md)
+(SPDX: `PolyForm-Noncommercial-1.0.0`).
+
+- **You may** use it on your own computers and your family's or friends',
+  change it, and share it, as long as nobody makes money from it. Charities,
+  schools, public research and government bodies may use it too.
+- **You may not** use it for any commercial purpose: not inside a company,
+  not as part of a paid service or product, and not to earn money.
+- Anyone you share it with must receive the license and its copyright notice
+  with it.
+
+It is provided as is, with no warranty. For commercial use, contact the
+author through GitHub.
