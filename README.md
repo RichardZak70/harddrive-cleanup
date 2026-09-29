@@ -4,7 +4,8 @@
 [![CodeQL](https://github.com/RichardZak70/harddrive-cleanup/actions/workflows/codeql.yml/badge.svg)](https://github.com/RichardZak70/harddrive-cleanup/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/RichardZak70/harddrive-cleanup/badge)](https://scorecard.dev/viewer/?uri=github.com/RichardZak70/harddrive-cleanup)
 [![Latest release](https://img.shields.io/github/v/release/RichardZak70/harddrive-cleanup)](https://github.com/RichardZak70/harddrive-cleanup/releases/latest)
-[![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE.md)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14825/badge)](https://www.bestpractices.dev/projects/14825)
 [![AI-generated: Claude Code, Opus 5.5](https://img.shields.io/badge/AI--generated-Claude%20Code%20%C2%B7%20Opus%205.5-8A2BE2)](AI_DISCLOSURE.md)
 
 > [!IMPORTANT]
@@ -141,17 +142,19 @@ through private reporting, as [SECURITY.md](SECURITY.md) describes.
 
 ## License
 
-Free for personal, non-commercial use under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md)
-(SPDX: `PolyForm-Noncommercial-1.0.0`).
+Free and open-source software under the
+[GNU General Public License, version 3](LICENSE) (SPDX: `GPL-3.0-only`).
+Copyright (C) 2026 Richard Zakrzewski.
 
-- **You may** use it on your own computers and your family's or friends',
-  change it, and share it, as long as nobody makes money from it. Charities,
-  schools, public research and government bodies may use it too.
-- **You may not** use it for any commercial purpose: not inside a company,
-  not as part of a paid service or product, and not to earn money.
-- Anyone you share it with must receive the license and its copyright notice
-  with it.
+- **You may** use it for any purpose, study and change it, and share it,
+  changed or not.
+- **If you share it, or a changed version**, you must pass on the same
+  freedoms: include the license and its copyright notices, and make the source
+  code of your version available under GPL-3.0 as well.
 
-It is provided as is, with no warranty. For commercial use, contact the
-author through GitHub.
+It is provided as is, with **no warranty**; see sections 15 and 16 of the
+license.
+
+Versions v1.0.0 and v1.0.1 were published under the PolyForm Noncommercial
+License 1.0.0, and those two downloads keep that license. Every version from
+v1.1.0 on is GPL-3.0.

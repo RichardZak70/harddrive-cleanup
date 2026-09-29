@@ -16,7 +16,8 @@
     administrator-window exit code behave. Exits 0 when every test passes,
     1 otherwise.
 #>
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-FileCopyrightText: 2026 Richard Zakrzewski
+# SPDX-License-Identifier: GPL-3.0-only
 # SPDX-AI-Disclosure: ai-generated
 # SPDX-AI-Model: claude-opus-5-5
 # SPDX-AI-Provider: Anthropic

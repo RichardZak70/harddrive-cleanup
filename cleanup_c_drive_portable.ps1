@@ -55,7 +55,8 @@
     Internal. Set when the script opens its administrator window: run the
     system tasks only, and report each task's outcome in the exit code.
 #>
-# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# SPDX-FileCopyrightText: 2026 Richard Zakrzewski
+# SPDX-License-Identifier: GPL-3.0-only
 # SPDX-AI-Disclosure: ai-generated
 # SPDX-AI-Model: claude-opus-5-5
 # SPDX-AI-Provider: Anthropic

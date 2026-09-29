@@ -8,7 +8,7 @@ tools:
   - Claude Code
 scope: >-
   All code, tests, GitHub Actions workflows and documentation, except the
-  verbatim third-party texts LICENSE.md (PolyForm Noncommercial 1.0.0) and
+  verbatim third-party texts LICENSE (GNU GPL version 3) and
   CODE_OF_CONDUCT.md (Contributor Covenant 2.1).
 last-updated: 2026-09-24
 ---
@@ -61,7 +61,8 @@ test and review so far was run by automated tools and AI agents.
   running it. They are short and in plain English.
 - Run it with `-DryRun` first. It reports what it would remove and deletes
   nothing.
-- It is provided as is, with no warranty. See [LICENSE.md](LICENSE.md).
+- It is provided as is, with no warranty. See [LICENSE](LICENSE), sections 15
+  and 16.
 - Found something wrong? Please report it, privately if it is a safety
   problem. See [SECURITY.md](SECURITY.md).
 

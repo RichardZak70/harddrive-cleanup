@@ -39,4 +39,4 @@ What it did:
 
 ## Licensing
 
-- [ ] I wrote this or have the right to submit it, and I agree it is licensed under the project's [PolyForm Noncommercial License 1.0.0](../LICENSE.md)
+- [ ] I wrote this or have the right to submit it, and I agree it is licensed under the project's [GPL-3.0 license](../LICENSE)
