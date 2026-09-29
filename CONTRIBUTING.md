@@ -203,10 +203,11 @@ welcome on the same terms:
 ## Licensing of contributions
 
 This project is licensed under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md). By sending a contribution,
-you agree that it is licensed to everyone under that same license, and you
-confirm that you wrote it or have the right to submit it. Please don't submit
-code copied from somewhere under a license that doesn't allow that.
+[GNU General Public License, version 3](LICENSE) (`GPL-3.0-only`). By sending
+a contribution, you agree that it is licensed to everyone under that same
+license, and you confirm that you wrote it or have the right to submit it.
+Please don't submit code copied from somewhere under a license that isn't
+compatible with GPL-3.0.
 
 ## Be kind
 

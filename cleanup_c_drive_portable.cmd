@@ -1,5 +1,6 @@
 @echo off
-REM SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+REM SPDX-FileCopyrightText: 2026 Richard Zakrzewski
+REM SPDX-License-Identifier: GPL-3.0-only
 REM SPDX-AI-Disclosure: ai-generated
 REM SPDX-AI-Model: claude-opus-5-5
 REM SPDX-AI-Provider: Anthropic

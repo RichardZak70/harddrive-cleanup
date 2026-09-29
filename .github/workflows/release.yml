@@ -35,7 +35,7 @@ jobs:
         run: |
           $name = "harddrive-cleanup-$env:VERSION"
           New-Item -ItemType Directory -Path dist, "stage/$name" | Out-Null
-          Copy-Item cleanup_c_drive_portable.cmd, cleanup_c_drive_portable.ps1, README.md, LICENSE.md "stage/$name"
+          Copy-Item cleanup_c_drive_portable.cmd, cleanup_c_drive_portable.ps1, README.md, LICENSE "stage/$name"
           Compress-Archive -Path "stage/$name" -DestinationPath "dist/$name.zip"
           $hash = (Get-FileHash "dist/$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
           # A checksum file is one LF-terminated line, as sha256sum -c expects;
